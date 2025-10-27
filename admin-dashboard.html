@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DSBCA Admin Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #16a34a;
+            font-weight: 500;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            animation: countUp 1s ease-out;
+        }
+
+        @keyframes countUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 1rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            margin-bottom: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .section-header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .refresh-btn:active {
+            transform: translateY(0);
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .data-table th {
+            background: rgba(248, 250, 252, 0.8);
+            font-weight: 600;
+            color: #475569;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table tr {
+            transition: all 0.2s ease;
+        }
+
+        .data-table tr:hover {
+            background: rgba(248, 250, 252, 0.5);
+        }
+
+        .data-table td {
+            color: #1e293b;
+            font-size: 0.95rem;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-new {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(16, 185, 129, 0.1));
+            color: #16a34a;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.1), rgba(245, 158, 11, 0.1));
+            color: #d97706;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .empty-state {
+            padding: 4rem 2rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #475569;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+
+        .loading i {
+            font-size: 2rem;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1));
+            color: #dc2626;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .error i {
+            font-size: 1.5rem;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-stats {
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+
+            .container {
+                padding: 0 0.5rem;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table {
+                font-size: 0.9rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 1rem 0.75rem;
+            }
+
+            .section-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .refresh-btn {
+                justify-content: center;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>
+                <i class="fas fa-chart-line"></i>
+                DSBCA Admin Dashboard
+            </h1>
+            <div class="header-stats">
+                <div class="live-indicator">
+                    <div class="live-dot"></div>
+                    <span>Live Data</span>
+                </div>
+                <div id="currentTime"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Statistics -->
+        <div class="stats">
+            <div class="stat-card fade-in">
+                <div class="stat-icon">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <div class="stat-number" id="contactsCount">0</div>
+                <div class="stat-label">Contact Submissions</div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-icon">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div class="stat-number" id="inquiriesCount">0</div>
+                <div class="stat-label">Service Inquiries</div>
+            </div>
+            <div class="stat-card fade-in">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-number" id="subscribersCount">0</div>
+                <div class="stat-label">Newsletter Subscribers</div>
+            </div>
+        </div>
+
+        <!-- Contact Submissions -->
+        <div class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-envelope-open-text"></i>
+                    Recent Contact Submissions
+                </h2>
+                <button class="refresh-btn" onclick="loadContacts()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+            </div>
+            <div id="contactsContent">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading contact submissions...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Inquiries -->
+        <div class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-briefcase"></i>
+                    Recent Service Inquiries
+                </h2>
+                <button class="refresh-btn" onclick="loadInquiries()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+            </div>
+            <div id="inquiriesContent">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading service inquiries...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Newsletter Subscribers -->
+        <div class="section fade-in">
+            <div class="section-header">
+                <h2 class="section-title">
+                    <i class="fas fa-newspaper"></i>
+                    Newsletter Subscribers
+                </h2>
+                <button class="refresh-btn" onclick="loadSubscribers()">
+                    <i class="fas fa-sync-alt"></i>
+                    Refresh
+                </button>
+            </div>
+            <div id="subscribersContent">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Loading newsletter subscribers...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="last-updated" id="lastUpdated">
+        Last updated: Loading...
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5001/api';
+
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleString();
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        async function fetchData(endpoint) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                const result = await response.json();
+                return result;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return { success: false, message: error.message };
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        function truncateText(text, maxLength = 50) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function animateNumber(element, target) {
+            const duration = 1000;
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 16);
+        }
+
+        async function loadContacts() {
+            const content = document.getElementById('contactsContent');
+            const result = await fetchData('/admin/contacts');
+            
+            if (result.success) {
+                const contacts = result.data;
+                const countElement = document.getElementById('contactsCount');
+                animateNumber(countElement, contacts.length);
+                
+                if (contacts.length === 0) {
+                    content.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-inbox"></i>
+                            <h3>No contact submissions yet</h3>
+                            <p>When clients submit the contact form, they'll appear here.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const table = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user"></i> Name</th>
+                                <th><i class="fas fa-envelope"></i> Email</th>
+                                <th><i class="fas fa-tag"></i> Subject</th>
+                                <th><i class="fas fa-comment"></i> Message</th>
+                                <th><i class="fas fa-clock"></i> Date</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${contacts.map(contact => `
+                                <tr>
+                                    <td><strong>${contact.name}</strong></td>
+                                    <td><a href="mailto:${contact.email}">${contact.email}</a></td>
+                                    <td>${contact.subject}</td>
+                                    <td title="${contact.message}">${truncateText(contact.message)}</td>
+                                    <td>${formatDate(contact.createdAt)}</td>
+                                    <td><span class="status-badge status-${contact.status}">${contact.status}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                content.innerHTML = table;
+            } else {
+                content.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Error:</strong> ${result.message}
+                        </div>
+                    </div>
+                `;
+            }
+            updateLastUpdated();
+        }
+
+        async function loadInquiries() {
+            const content = document.getElementById('inquiriesContent');
+            const result = await fetchData('/admin/inquiries');
+            
+            if (result.success) {
+                const inquiries = result.data;
+                const countElement = document.getElementById('inquiriesCount');
+                animateNumber(countElement, inquiries.length);
+                
+                if (inquiries.length === 0) {
+                    content.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-briefcase"></i>
+                            <h3>No service inquiries yet</h3>
+                            <p>Service inquiries will appear here when clients request specific services.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const table = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user"></i> Name</th>
+                                <th><i class="fas fa-envelope"></i> Email</th>
+                                <th><i class="fas fa-phone"></i> Phone</th>
+                                <th><i class="fas fa-cogs"></i> Service</th>
+                                <th><i class="fas fa-building"></i> Company</th>
+                                <th><i class="fas fa-clock"></i> Date</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${inquiries.map(inquiry => `
+                                <tr>
+                                    <td><strong>${inquiry.name}</strong></td>
+                                    <td><a href="mailto:${inquiry.email}">${inquiry.email}</a></td>
+                                    <td><a href="tel:${inquiry.phone}">${inquiry.phone}</a></td>
+                                    <td>${inquiry.service}</td>
+                                    <td>${inquiry.company || '<em>Not specified</em>'}</td>
+                                    <td>${formatDate(inquiry.createdAt)}</td>
+                                    <td><span class="status-badge status-${inquiry.status}">${inquiry.status}</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                content.innerHTML = table;
+            } else {
+                content.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Error:</strong> ${result.message}
+                        </div>
+                    </div>
+                `;
+            }
+            updateLastUpdated();
+        }
+
+        async function loadSubscribers() {
+            const content = document.getElementById('subscribersContent');
+            const result = await fetchData('/admin/newsletter');
+            
+            if (result.success) {
+                const subscribers = result.data;
+                const countElement = document.getElementById('subscribersCount');
+                animateNumber(countElement, subscribers.length);
+                
+                if (subscribers.length === 0) {
+                    content.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-users"></i>
+                            <h3>No newsletter subscribers yet</h3>
+                            <p>Newsletter subscribers will appear here when people sign up.</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const table = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-envelope"></i> Email</th>
+                                <th><i class="fas fa-calendar"></i> Subscription Date</th>
+                                <th><i class="fas fa-check-circle"></i> Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${subscribers.map(subscriber => `
+                                <tr>
+                                    <td><a href="mailto:${subscriber.email}">${subscriber.email}</a></td>
+                                    <td>${formatDate(subscriber.createdAt)}</td>
+                                    <td><span class="status-badge status-new">Active</span></td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                content.innerHTML = table;
+            } else {
+                content.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <div>
+                            <strong>Error:</strong> ${result.message}
+                        </div>
+                    </div>
+                `;
+            }
+            updateLastUpdated();
+        }
+
+        function updateLastUpdated() {
+            document.getElementById('lastUpdated').textContent = 
+                `Last updated: ${new Date().toLocaleString()}`;
+        }
+
+        // Add refresh animation
+        function addRefreshAnimation(button) {
+            button.querySelector('i').style.animation = 'spin 1s linear';
+            setTimeout(() => {
+                button.querySelector('i').style.animation = '';
+            }, 1000);
+        }
+
+        // Enhanced refresh functions
+        async function refreshContacts() {
+            const button = event.target.closest('button');
+            addRefreshAnimation(button);
+            await loadContacts();
+        }
+
+        async function refreshInquiries() {
+            const button = event.target.closest('button');
+            addRefreshAnimation(button);
+            await loadInquiries();
+        }
+
+        async function refreshSubscribers() {
+            const button = event.target.closest('button');
+            addRefreshAnimation(button);
+            await loadSubscribers();
+        }
+
+        // Load all data on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadContacts();
+            loadInquiries();
+            loadSubscribers();
+        });
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadContacts();
+            loadInquiries();
+            loadSubscribers();
+        }, 30000);
+
+        // Update refresh button onclick handlers
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelector('button[onclick="loadContacts()"]').setAttribute('onclick', 'refreshContacts()');
+            document.querySelector('button[onclick="loadInquiries()"]').setAttribute('onclick', 'refreshInquiries()');
+            document.querySelector('button[onclick="loadSubscribers()"]').setAttribute('onclick', 'refreshSubscribers()');
+        });
+    </script>
+</body>
+</html>
